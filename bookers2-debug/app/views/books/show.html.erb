@@ -1,8 +1,18 @@
 <div class="row">
+	<!-- newbookのエラーズメソッド -->
 	<% if @books.errors.any? %>
 	<h3><%= @books.errors.count %>error occurrence</h3><!--エラーメッセ-->
 	<ul>
 		<% @books.errors.full_messages.each do |message| %>
+		<li><%= message %></li>
+		<% end %>
+	</ul>
+	<% end %>
+	<!-- post_commentのエラーズメソッド -->
+		<% if @post_comment.errors.any? %>
+	<h3><%= @post_comment.errors.count %>error occurrence</h3><!--エラーメッセ-->
+	<ul>
+		<% @post_comment.errors.full_messages.each do |message| %>
 		<li><%= message %></li>
 		<% end %>
 	</ul>
@@ -21,7 +31,9 @@
 
 	<div class="col-xs-9">
 		<h2>Book detail</h2>
+
 		<!-- 自他ユーザーで表示を分岐 -->
+
 		<% if user_signed_in? && current_user == @user %><!-- a&&b=aとbが共に真の場合に真 id不要-->
 		<!--マイページ(編集や削除ができる)-->
 		<table class="table">
@@ -59,14 +71,31 @@
 				</tr>
 			</tbody>
 		</table>
-		<div class="text_area">
+		<!-- 送信ボックス -->
+		<div class="">
 			<%= form_for [@book, @post_comment] do |f| %>
-				<%= f.text_area :comment, size: "80 x 10"%><!-- 横80文字x縦10文字,文字数でフォームの大きさを変える(文字の縦横比に注意) -->
+				<%= f.text_area :comment, size: "70 x 10"%><!-- 横70文字x縦10文字,文字数でフォームの大きさを変える(文字の縦横比に注意) -->
 				<%= f.submit '送信' %>
 			<% end %>
 		</div>
+		<!-- コメント表示 -->
+		<% @book.post_comments.each do |post_comment| %>
+		<div class="">
+					<!-- %の後に#をつけるとrubyの記述を無効にしてコメントアウトできる -->
+					<%= post_comment.created_at.strftime('%Y/%m/%d') %>
+				    <%= post_comment.user.name %>
+					<%= post_comment.comment %>
+					<!-- 投稿されたのが今からどのくらい前なのかを表示する -->
+					<%= time_ago_in_words(post_comment.created_at) %>
+					<!-- コメント削除機能の分岐 -->
+					<% if user_signed_in? && current_user == post_comment.user %>
+						<%= link_to "削除",[@book,post_comment], method: :delete, data: {confirm: "本当に削除してもよろしいですか？"} %>
+					<% end %>
+			</div>
+		<% end %>
 
-			<% else %><!-- a&&b=aとbが共に真の場合に真ではない場合 -->
+
+		<% else %><!-- a&&b=aとbが共に真の場合に真ではない場合 -->
 			 <!--他の人のページ(編集や削除はできない)-->
 			<table class="table">
 				<tbody>
@@ -98,17 +127,31 @@
 						<% end %>
 						<!-- 応用③コメント件数追加 -->
 						<td>コメント数：<%= @book.post_comments.count %></td>
-						<td><%= link_to "Edit",edit_book_path(@book), class: "btn-sm btn-success edit_book_#{@book.id}" %></td>
-						<td><%= link_to "Destroy",@book, method: :delete, data: {confirm: "本当に削除してもよろしいですか？"}, class: "btn-sm btn-danger destroy_book_#{@book.id}" %></td>
 					</tr>
 				</tbody>
 			</table>
-			<div class="text_area">
+			<!-- 送信ボックス -->
+			<div class="">
 				<%= form_for [@book, @post_comment] do |f| %>
-					<%= f.text_area :comment, size: "80 x 10"%><!-- 横80文字x縦10文字,文字数でフォームの大きさを変える(文字の縦横比に注意) -->
+					<%= f.text_area :comment, size: "70 x 10"%><!-- 横70文字x縦10文字,文字数でフォームの大きさを変える(文字の縦横比に注意) -->
 					<%= f.submit '送信' %>
 				<% end %>
 			</div>
+			<!-- コメント表示 -->
+			<% @book.post_comments.each do |post_comment| %>
+			<div class="">
+					<!-- %の後に#をつけるとrubyの記述を無効にしてコメントアウトできる -->
+					<%= post_comment.created_at.strftime('%Y/%m/%d') %>
+				    <%= post_comment.user.name %>
+					<%= post_comment.comment %>
+					<!-- 投稿されたのが今からどのくらい前なのかを表示する -->
+					<%= time_ago_in_words(post_comment.created_at) %>
+					<!-- コメント削除機能の分岐 -->
+					<% if user_signed_in? && current_user == post_comment.user %>
+						<%= link_to "削除",[@book,post_comment], method: :delete, data: {confirm: "本当に削除してもよろしいですか？"} %>
+					<% end %>
+			</div>
+			<% end %>
 
 			<% end %>
 
